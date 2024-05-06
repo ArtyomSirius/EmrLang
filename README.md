@@ -1,1 +1,2 @@
-Emerald 0.9.9 source code
+Emerald source code
+Исходники обновляются каждый понедельник!
