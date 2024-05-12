@@ -14,7 +14,6 @@ global_symbol_table.set("DIGITS", String.digits)
 global_symbol_table.set("Panda_Secret", String("А вот секретик, с добрым полдником!"))
 global_symbol_table.set("Lia", String("Лия, скинь расписание(секретик)"))
 
-global_symbol_table.set("mathPi", Number.math_pi)
 global_symbol_table.set("print", BuiltInFunction.print)
 global_symbol_table.set("print_ret", BuiltInFunction.print_ret)
 global_symbol_table.set("input", BuiltInFunction.input)

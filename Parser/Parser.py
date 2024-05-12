@@ -781,7 +781,7 @@ class Parser:
 
 	def expr(self):
 		res = ParseResult()
-		if self.current_tok.matches(TOKEN_KEYWORD, 'use'):
+		if self.current_tok.matches(TOKEN_KEYWORD, 'init'):
 			res.register_advancement()
 			self.advance()
 			if self.current_tok.type != TOKEN_STRING:

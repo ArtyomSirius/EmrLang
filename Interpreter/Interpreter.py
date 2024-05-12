@@ -53,24 +53,40 @@ class Interpreter:
 
 		if node.status == "modl":
 			if node.modl_name.value == "rand":
+				BuiltInFunction.rand          = BuiltInFunction("rand")
+				BuiltInFunction.choice        = BuiltInFunction("choice")
 				global_symbol_table.set("rand", BuiltInFunction.rand)
 				global_symbol_table.set("choice", BuiltInFunction.choice)
-				#global_symbol_table.set("shuffle", BuiltInFunction.shuffle)
+				#global_symbol_table.set("shuffle", BuiltInFunction.shuffle
 
 			elif node.modl_name.value == "isOBJ":
+				BuiltInFunction.is_number     = BuiltInFunction("is_number")
+				BuiltInFunction.is_string     = BuiltInFunction("is_string")
+				BuiltInFunction.is_list       = BuiltInFunction("is_list")
+				BuiltInFunction.is_function   = BuiltInFunction("is_function")
 				global_symbol_table.set("isInt", BuiltInFunction.is_number)
 				global_symbol_table.set("isStr", BuiltInFunction.is_string)
 				global_symbol_table.set("isList", BuiltInFunction.is_list)
 				global_symbol_table.set("isFunc", BuiltInFunction.is_function)
 
 			elif node.modl_name.value == "Convert":
+				BuiltInFunction.constr        = BuiltInFunction("constr")
+				BuiltInFunction.conint        = BuiltInFunction("conint")
 				global_symbol_table.set("ConStr", BuiltInFunction.constr)
 				global_symbol_table.set("ConInt", BuiltInFunction.conint)
 
 			elif node.modl_name.value == "time":
+				BuiltInFunction.sleep         = BuiltInFunction("sleep")
 				global_symbol_table.set("sleep", BuiltInFunction.sleep)
 
 			elif node.modl_name.value == "math":
+				BuiltInFunction.ceil_math     = BuiltInFunction("ceil")
+				BuiltInFunction.comb_math     = BuiltInFunction("comb")
+				BuiltInFunction.copysign_math = BuiltInFunction("copysign")
+				BuiltInFunction.fabs_math     = BuiltInFunction("fabs")
+				Number.math_pi  = Number(math.pi)
+				Number.math_e   = Number(math.e)
+				Number.math_tau = Number(math.tau)
 				global_symbol_table.set("mathPi", Number.math_pi)
 				global_symbol_table.set("mathE", Number.math_e)
 				global_symbol_table.set("mathTau", Number.math_tau)

@@ -1,9 +1,8 @@
 def get():
 	code = ["""
-	use "isOBJ"
+	init "isOBJ"
 	func revers(data) { 
-		#REVERS for EMERALD 0.9.9
-		#MADE BY АРТЁМ ШЕЛЕПНЁВ
+		#REVERS for EMERALD 1.0
 		if isStr(data) {
 			var index = -1 
 			var len = len(data) 

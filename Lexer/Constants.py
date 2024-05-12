@@ -58,7 +58,7 @@ KEYWORDS = [
 	'try',
 	'except',
 	'}',
-	'use',
+	'init',
 	'connect',
 	'pass',
 	'return',
