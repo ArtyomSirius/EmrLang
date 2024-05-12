@@ -4,6 +4,7 @@ from Errors.Errors import *
 
 class Lexer():
 	def __init__(self, fn, text):
+		#print(text)
 		self.fn = fn
 		self.text = text
 		self.pos = Position(-1, 0, -1, fn, text)
@@ -94,13 +95,14 @@ class Lexer():
 				tokens.append(Token(TOKEN_COMMA, pos_start=self.pos))
 				self.advance()
 			elif self.current_char == '.':
-				tokens.append(Token(TOKEN_POINT, pos_start=self.pos))
+				tokens.append(Token(TOKEN_DOT, pos_start=self.pos))
 				self.advance()
 
 			else:
 				pos_start = self.pos.copy()
 				char = self.current_char
 				self.advance()
+				#print(IllegalCharError(pos_start, self.pos, "'" + char + "'"))
 				return [], IllegalCharError(pos_start, self.pos, "'" + char + "'")
 
 		tokens.append(Token(TOKEN_EOF, pos_start=self.pos))

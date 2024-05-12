@@ -569,11 +569,6 @@ class Parser:
 			if res.error: return res
 			return res.success(func_expr)
 
-		elif tok.matches(TOKEN_KEYWORD, 'class'):
-			class_expr = res.register(self.class_def())
-			if res.error: return res
-			return res.success(class_expr)
-
 		elif tok.matches(TOKEN_KEYWORD, 'if'):
 			if_expr = res.register(self.if_expr())
 			if res.error: return res

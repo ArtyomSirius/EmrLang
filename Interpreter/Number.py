@@ -650,11 +650,15 @@ class BuiltInFunction(BaseFunction):
 	def execute_write(self, exec_ctx):
 		file_ = exec_ctx.symbol_table.get('file')
 		data_ = exec_ctx.symbol_table.get('data')
-		if not isinstance(data_, String):
+		if not isinstance(data_, List):
 			return RTResult().failrule(RTError(
-				self.pos_start, self.pos_end, "Second argument must be string!", exec_ctx))
-		print(file_.value)
-		file_.value.write(data_.value)
+				self.pos_start, self.pos_end, "Second argument must be list!", exec_ctx))
+		#print(file_.value)
+		file__ = open(file_.value, "w")
+		for elm in data_.elements: 
+			file__.write(f"{elm}\n")
+		file__.close()
+		return RTResult().success(Number(0))
 
 
 	execute_write.arg_names = ['file', 'data']
@@ -693,20 +697,67 @@ class BuiltInFunction(BaseFunction):
 		return RTResult().success(Number.null)
 	execute_append.arg_names = ['list', 'value']
 
+
+	def execute_ceil(self, exec_ctx):
+		number = exec_ctx.symbol_table.get("number")
+
+		if not isinstance(number, Number):
+			return RTResult().failrule(RTError(
+				self.pos_start, self.pos_end, "Argument must be number!", exec_ctx))
+		return RTResult().success(Number(math.ceil(number.value)))
+
+	execute_ceil.arg_names = ["number"]
+
+	def execute_comb(self, exec_ctx):
+		number1 = exec_ctx.symbol_table.get("number1")
+		number2 = exec_ctx.symbol_table.get("number2")
+		if not isinstance(number1, Number):
+			return RTResult().failrule(RTError(
+				self.pos_start, self.pos_end, "Fisrt argument must be number!", exec_ctx))
+		if not isinstance(number2, Number):
+			return RTResult().failrule(RTError(
+				self.pos_start, self.pos_end, "Second argument must be number!", exec_ctx))
+		return RTResult().success(Number(math.comb(number1.value, number2.value)))
+
+	execute_comb.arg_names = ["number1", "number2"]
+
+	def execute_copysign(self, exec_ctx):
+		number1 = exec_ctx.symbol_table.get("number1")
+		number2 = exec_ctx.symbol_table.get("number2")
+		if not isinstance(number1, Number):
+			return RTResult().failrule(RTError(
+				self.pos_start, self.pos_end, "Fisrt argument must be number!", exec_ctx))
+		if not isinstance(number2, Number):
+			return RTResult().failrule(RTError(
+				self.pos_start, self.pos_end, "Second argument must be number!", exec_ctx))
+		return RTResult().success(Number(math.copysign(number1.value, number2.value)))
+
+	execute_copysign.arg_names = ["number1", "number2"]
+
+	def execute_fabs(self, exec_ctx):
+		number = exec_ctx.symbol_table.get("number")
+
+		if not isinstance(number, Number):
+			return RTResult().failrule(RTError(
+				self.pos_start, self.pos_end, "Argument must be number!", exec_ctx))
+		return RTResult().success(Number(math.fabs(number.value)))
+
+	execute_fabs.arg_names = ["number"]
+
 	def execute_pop(self, exec_ctx):
 		list_ = exec_ctx.symbol_table.get('list')
-		value = exec_ctx.symbol_table.get('value')
+		value = exec_ctx.symbol_table.get('index')
 
 		if not  isinstance(list_, List):
 			return RTResult().failrule(RTError(
 				self.pos_start, self.pos_end, "First argument must be list!", exec_ctx))
 
-		if not  isinstance(list_, Number):
+		if not  isinstance(value, Number):
 			return RTResult().failrule(RTError(
 				self.pos_start, self.pos_end, "Second argument must be number!", exec_ctx))
 
 		try:
-			elements = list_.elements.pop(index.value)
+			elements = list_.elements.pop(value.value)
 		except:
 			return RTResult().failrule(RTError(
 				self.pos_start, self.pos_end, "Element at this index could not be removed from list because index is out of bounds", exec_ctx))
@@ -858,50 +909,28 @@ class BuiltInFunction(BaseFunction):
 
 		if parametr.value == "r":
 			try:
-				try:
-					file = open(file.value, 'r').read()
-					return RTResult().success(String(file))
-				finally:
-					file.close()
+				#try:
+				file = open(file.value, 'r').read()
+				return RTResult().success(String(file))
 			except:
 				return RTResult().failrule(RTError(
 					self.pos_start, self.pos_end, f"File {file.value} is not defined", exec_ctx))
 		elif parametr.value == "rl":
 			try:
-				try:
-					file =  open(file.value, 'r').readlines()
-					list_ = []
-					for line in file:
-						line = String(line)
-						list_.append(line)
-					return RTResult().success(List(list_))
-				finally:
-					file.close()
+				
+				file =  open(file.value, 'r').readlines()
+				list_ = []
+				for line in file:
+					line = String(line)
+					list_.append(line)
+				return RTResult().success(List(list_))
+				
 			except:
 				return RTResult().failrule(RTError(
 					self.pos_start, self.pos_end, f"File {file} is not defined", exec_ctx))
-		elif parametr.value == "w":
-			try:
-				try:
-					file_1 =  open(file.value, 'w')
-					file_2 = file_1
-					#file.write(str(exec_ctx.symbol_table.get("value")))
-					return RTResult().success(String(file_2))
-				finally:
-					pass
-					#file_1.close()
-					#return RTResult().success(String(file_2))
-
-				#return RTResult().success(List(list_))
-
-			except ValueError as a:
-				return RTResult().failrule(RTError(
-					self.pos_start, self.pos_end, f"{a}", exec_ctx))
-
-
 		else:
 			return RTResult().failrule(RTError(
-				self.pos_start, self.pos_end, f"The 'open' function has no parameter {parametr}!", exec_ctx))
+					self.pos_start, self.pos_end, f"There is no such attribute", exec_ctx))
 
 
 	execute_open_file.arg_names = ['file', 'parametr']
@@ -975,40 +1004,45 @@ class BuiltInFunction(BaseFunction):
 
 	execute_run.arg_names = ['fn']
 
-BuiltInFunction.print        = BuiltInFunction("print")
-BuiltInFunction.print_ret    = BuiltInFunction("print_ret")
-BuiltInFunction.input        = BuiltInFunction("input")
-BuiltInFunction.input_int    = BuiltInFunction("input_int")
-BuiltInFunction.clear        = BuiltInFunction("clear")
-BuiltInFunction.is_number    = BuiltInFunction("is_number")
-BuiltInFunction.is_string    = BuiltInFunction("is_string")
-BuiltInFunction.is_list      = BuiltInFunction("is_list")
-BuiltInFunction.is_function  = BuiltInFunction("is_function")
-BuiltInFunction.append       = BuiltInFunction("append")
-BuiltInFunction.pop          = BuiltInFunction("pop")
-BuiltInFunction.extend       = BuiltInFunction("extend")
+BuiltInFunction.print         = BuiltInFunction("print")
+BuiltInFunction.print_ret     = BuiltInFunction("print_ret")
+BuiltInFunction.input         = BuiltInFunction("input")
+BuiltInFunction.input_int     = BuiltInFunction("input_int")
+BuiltInFunction.clear         = BuiltInFunction("clear")
+BuiltInFunction.is_number     = BuiltInFunction("is_number")
+BuiltInFunction.is_string     = BuiltInFunction("is_string")
+BuiltInFunction.is_list       = BuiltInFunction("is_list")
+BuiltInFunction.is_function   = BuiltInFunction("is_function")
+BuiltInFunction.append        = BuiltInFunction("append")
+BuiltInFunction.pop           = BuiltInFunction("pop")
+BuiltInFunction.extend        = BuiltInFunction("extend")
 
-BuiltInFunction.rand         = BuiltInFunction("rand")
-BuiltInFunction.choice       = BuiltInFunction("choice")
-BuiltInFunction.shuffle      = BuiltInFunction("shuffle")
+BuiltInFunction.rand          = BuiltInFunction("rand")
+BuiltInFunction.choice        = BuiltInFunction("choice")
+BuiltInFunction.shuffle       = BuiltInFunction("shuffle")
 
-BuiltInFunction.Lstrip       = BuiltInFunction("Lstrip")
-BuiltInFunction.Rstrip       = BuiltInFunction("Rstrip")
+BuiltInFunction.Lstrip        = BuiltInFunction("Lstrip")
+BuiltInFunction.Rstrip        = BuiltInFunction("Rstrip")
 
-BuiltInFunction.constr       = BuiltInFunction("constr")
-BuiltInFunction.conint       = BuiltInFunction("conint")
+BuiltInFunction.constr        = BuiltInFunction("constr")
+BuiltInFunction.conint        = BuiltInFunction("conint")
 
-BuiltInFunction.open_file    = BuiltInFunction("open_file")
-BuiltInFunction.write        = BuiltInFunction("write")
+BuiltInFunction.ceil_math     = BuiltInFunction("ceil")
+BuiltInFunction.comb_math     = BuiltInFunction("comb")
+BuiltInFunction.copysign_math = BuiltInFunction("copysign")
+BuiltInFunction.fabs_math     = BuiltInFunction("fabs")
 
-BuiltInFunction.tracebackerr = BuiltInFunction("tracebackerr")
+BuiltInFunction.open_file     = BuiltInFunction("open_file")
+BuiltInFunction.write         = BuiltInFunction("write")
 
-BuiltInFunction.sleep        = BuiltInFunction("sleep")
+BuiltInFunction.tracebackerr  = BuiltInFunction("tracebackerr")
 
-BuiltInFunction.len	         = BuiltInFunction("len")
-BuiltInFunction.quit         = BuiltInFunction("quit")
-BuiltInFunction.help         = BuiltInFunction("help")
-BuiltInFunction.run          = BuiltInFunction("run")
+BuiltInFunction.sleep         = BuiltInFunction("sleep")
+
+BuiltInFunction.len	          = BuiltInFunction("len")
+BuiltInFunction.quit          = BuiltInFunction("quit")
+BuiltInFunction.help          = BuiltInFunction("help")
+BuiltInFunction.run           = BuiltInFunction("run")
 
 Number.null     = Number(0)
 Number.false    = Number(0)
@@ -1016,3 +1050,5 @@ Number.true     = Number(1)
 Number.math_pi  = Number(math.pi)
 Number.math_e   = Number(math.e)
 Number.math_tau = Number(math.tau)
+String.letters  = String(string.ascii_letters)
+String.digits   = String('1234567890')

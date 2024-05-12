@@ -3,6 +3,7 @@ import string
 DIGITS           = '1234567890'
 LETTERS          = string.ascii_letters + "{" + "}"
 LETTERS_DIGITS   = LETTERS + DIGITS
+INTERPRETER_IMPORT = 0
 
 TOKEN_STRING     = "STRING"
 
@@ -34,7 +35,7 @@ TOKEN_LTE        = 'LTE'
 TOKEN_GTE        = 'GTE'
 
 TOKEN_COMMA      = 'COMMA'
-TOKEN_POINT      = 'POINT'
+TOKEN_DOT        = 'DOT'
 TOKEN_ARROW      = 'ARROW'
 
 KEYWORDS = [

@@ -4,10 +4,13 @@ from Interpreter.Interpreter import *
 from Interpreter.SymbolTable import *
 from Errors.Errors import *
 
+
 global_symbol_table.set("null", Number.null)
 global_symbol_table.set("None", Number(0))
-global_symbol_table.set("true", Number.false)
-global_symbol_table.set("false", Number.true)
+global_symbol_table.set("true", Number.true)
+global_symbol_table.set("false", Number.false)
+global_symbol_table.set("LETTERS", String.letters)
+global_symbol_table.set("DIGITS", String.digits)
 global_symbol_table.set("Panda_Secret", String("А вот секретик, с добрым полдником!"))
 global_symbol_table.set("Lia", String("Лия, скинь расписание(секретик)"))
 
@@ -33,21 +36,20 @@ global_symbol_table.set("run", BuiltInFunction.run)
 
 def run(fn, text):
 	# Generate tokens
-	  lexer = Lexer(fn, text)
-	  tokens, error = lexer.make_tokens()
-	  if error: return None, error
-	  #print("Lexer[OK]")
-	  #print(tokens)
-	  # Generate AST
-	  parser = Parser(tokens)
-	  ast = parser.parse()
-	  if ast.error: 
-	  	return None, ast.error
+	lexer = Lexer(fn, text)
+	tokens, error = lexer.make_tokens()
+	#print(tokens)
+	if error: return None, error
+	# Generate AST
+	parser = Parser(tokens)
+	ast = parser.parse()
+	if ast.error: 
+		return None, ast.error
 
-	  #print(ast.node)
-	  # Run program
-	  interpreter = Interpreter()
-	  context = Context('<program>')
-	  context.symbol_table = global_symbol_table
-	  result = interpreter.visit(ast.node, context)
-	  return result.value, result.error
+	#print(ast.node)
+	# Run program
+	interpreter = Interpreter()
+	context = Context('<program>')
+	context.symbol_table = global_symbol_table
+	result = interpreter.visit(ast.node, context)
+	return result.value, result.error

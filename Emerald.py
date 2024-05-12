@@ -1,13 +1,9 @@
 from Run.Run import *
 from sys import argv
 
-print("Emerald (2024)")
-print("Версия: 0.9.9(Последний пре-релиз)")
-print("Разработчик: Шелепнёв Артём")
+print("Emerald (2023-2024) Version: 1.0")
 print("Введите 'help()' для справки")
 print("")
-
-
 
 
 main = True

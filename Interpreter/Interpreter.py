@@ -9,6 +9,37 @@ global_symbol_table = SymbolTable()
 
 class Interpreter:
 	"""docstring for Interpreter"""
+	def __init__(self):
+		self.get_revers()
+
+	def get_revers(self):
+		res = RTResult()
+		
+		from Lib.EmrRevers import get
+
+		global INTERPRETER_IMPORT
+
+		revers_cod = get()
+		# Generate tokens
+		#print(revers_cod)
+		lexer = Lexer("<program>", *revers_cod)
+		tokens, error = lexer.make_tokens()
+		if error:
+			return None, error
+		# Generate AST
+		parser = Parser(tokens)
+		ast = parser.parse()
+		if ast.error: 
+			#print(ast.error.as_string())
+			return None, ast.error
+
+		#interpreter = Interpreter()
+		context = Context("<generate lib>")
+		
+		context.symbol_table = global_symbol_table
+		#if INTERPRETER_IMPORT == 0:
+		return res.success(self.visit(ast.node, context))
+
 	def visit(self, node, context):
 		method_name = f'visit_{type(node).__name__}'
 		method = getattr(self, method_name, self.no_visit_method)
@@ -24,6 +55,7 @@ class Interpreter:
 			if node.modl_name.value == "rand":
 				global_symbol_table.set("rand", BuiltInFunction.rand)
 				global_symbol_table.set("choice", BuiltInFunction.choice)
+				#global_symbol_table.set("shuffle", BuiltInFunction.shuffle)
 
 			elif node.modl_name.value == "isOBJ":
 				global_symbol_table.set("isInt", BuiltInFunction.is_number)
@@ -42,8 +74,10 @@ class Interpreter:
 				global_symbol_table.set("mathPi", Number.math_pi)
 				global_symbol_table.set("mathE", Number.math_e)
 				global_symbol_table.set("mathTau", Number.math_tau)
-
-
+				global_symbol_table.set("ceil", BuiltInFunction.ceil_math)
+				global_symbol_table.set("comb", BuiltInFunction.comb_math)
+				global_symbol_table.set("copysign", BuiltInFunction.copysign_math)
+				global_symbol_table.set("fabs", BuiltInFunction.fabs_math)
 			else:
 				return res.failrule(RTError(
 					node.pos_start, node.pos_end,
@@ -295,7 +329,7 @@ class Interpreter:
 				i += step_value.value
 
 				value = res.register(self.visit(node.body_node, context))
-				if res.should_return() and res.loop_should_continue == False and loop_should_break == False: return res
+				if res.should_return() and res.loop_should_continue == False and res.loop_should_break == False: return res
 
 				if res.loop_should_continue:
 					continue 
@@ -325,9 +359,12 @@ class Interpreter:
 					else:
 						new_condition.append(nc)
 				if add == True:
-					lexer = Lexer("<try>", '"'+res.error.as_string()+'"')
+					#print(res.error.as_string())
+					string = '"' + res.error.as_string() + '"'
+					lexer = Lexer("<try>", string)
 					tokens, error = lexer.make_tokens()
 					
+					#print(error.as_string())
 					new_condition.append(tokens[0])
 					new_condition.append(Token(TOKEN_COMMA, pos_start=node.pos_start))
 					add = False
