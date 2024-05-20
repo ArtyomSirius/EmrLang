@@ -7,7 +7,7 @@ def string_with_arrows(text, pos_start, pos_end):
     if idx_end < 0: idx_end = len(text)
     
     # Generate each line
-    line_count = pos_end.ln - pos_start.ln + 1
+    line_count = (pos_end.ln - pos_start.ln + 1)
     for i in range(line_count):
         # Calculate line columns
         line = text[idx_start:idx_end]
@@ -16,11 +16,11 @@ def string_with_arrows(text, pos_start, pos_end):
 
         # Append to result
         result += line + '\n'
-        result += '~' * col_start + '^' * (col_end - col_start)
+        result += ('~' * (col_start )) + '^' * (col_end - col_start)
 
         # Re-calculate indices
         idx_start = idx_end
         idx_end = text.find('\n', idx_start + 1)
         if idx_end < 0: idx_end = len(text)
 
-    return result.replace('\t', '')
+        return result.replace('\t', '')

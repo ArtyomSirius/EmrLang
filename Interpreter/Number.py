@@ -519,6 +519,7 @@ class BaseFunction(Value):
 	def check_args(self, arg_names, args):
 		res = RTResult()
 
+		
 		if len(args) > len(arg_names):
 			return res.failrule(RTError(
 				self.pos_start, self.pos_end,
@@ -980,14 +981,14 @@ class BuiltInFunction(BaseFunction):
 				self.pos_start, self.pos_end, "Argument must be string!", exec_ctx))
 		fn = fn.value
 
-		allowed_extensions = ['.emr']
+		allowed_extensions = ['.emr', '.e']
 		try:
 			with open(fn, 'r') as f:
 				if self.check_file_extension(fn, allowed_extensions):
 		 			script = f.read()
 				else:
 					return RTResult().failrule(RTError(
-						self.pos_start, self.pos_end, f"Failed to load script \"{fn}\"\n" + "NOT .emr", exec_ctx))
+						self.pos_start, self.pos_end, f"Failed to load script \"{fn}\"\n" + "NOT .emr or .e", exec_ctx))
 		except Exception as e:
 			#if not  isinstance(list_, List):
 			return RTResult().failrule(RTError(

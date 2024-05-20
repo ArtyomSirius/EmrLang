@@ -1,0 +1,5 @@
+func lex(*digits) {
+	print(digits)
+}
+
+lex(1,2,3,5)

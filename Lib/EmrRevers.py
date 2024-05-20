@@ -12,7 +12,7 @@ def get():
 				var index = index + -1 
 			} 
 			return result 
-		elif isList(data) {
+		} elif isList(data) {
 			var index = -1 
 			var len = len(data)
 			var result = []
@@ -21,7 +21,7 @@ def get():
 				var index = index + -1
 			}
 			return result
-		else {
+		} else {
 			TraceBack("Argument must be a string or list!")
 		}
 	}

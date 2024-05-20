@@ -1,4 +1,5 @@
-init "rand"
-init "time"
-init "Convert"
-init "math"
+func dex() {
+	print("def")
+	
+	end
+

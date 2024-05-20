@@ -25,6 +25,7 @@ class Parser:
 		self.tokens = tokens
 		#print(tokens)
 		self.tok_idx = -1
+		self.const_list = []
 		self.advance()
 
 	def reverse(self, amount=1):
@@ -102,7 +103,7 @@ class Parser:
 
 			return res.success(BreakNode(pos_start, self.current_tok.pos_start.copy()))
 		expr = res.register(self.expr())
-		if res.error: return res.failrule(IllegalSyntaxError(self.current_tok.pos_start, self.current_tok.pos_end, "Expected 'return', 'continue', 'break', var', int, float, identifier, '+', '-' or '('"))
+		if res.error: return res.failrule(IllegalSyntaxError(self.current_tok.pos_start, self.current_tok.pos_end, "Expected 'return', 'continue', 'break', 'var', int, float, identifier, '+', '-' or '('"))
 		return res.success(expr)
 
 	def parse(self):
@@ -181,10 +182,11 @@ class Parser:
 			step_value = None
 
 		if not self.current_tok.matches(TOKEN_KEYWORD, '{'):
-			return res.failure(InvalidSyntaxError(
-				self.current_tok.pos_start, self.current_tok.pos_end,
-				"Expected '{'"
-			))
+			if not self.current_tok.matches(TOKEN_KEYWORD, 'then'):
+				return res.failrule(IllegalSyntaxError(
+					self.current_tok.pos_start, self.current_tok.pos_end,
+					"Expected '{' or 'then'"
+				))
 
 		res.register_advancement()
 		self.advance()
@@ -197,11 +199,12 @@ class Parser:
 			body = res.register(self.statements())
 			if res.error: return res
 
-			if not self.current_tok.matches(TOKEN_KEYWORD, '}'):
-				return res.failrule(IllegalSyntaxError(
-					self.current_tok.pos_start, self.current_tok.pos_end,
-					"Expected '}'"
-				))
+			if not self.current_tok.matches(TOKEN_KEYWORD, '}'): 
+				if not self.current_tok.matches(TOKEN_KEYWORD, 'end'):
+					return res.failrule(IllegalSyntaxError(
+						self.current_tok.pos_start, self.current_tok.pos_end,
+						"Expected '}' or 'end'"
+					))
 
 			res.register_advancement()
 			self.advance()
@@ -229,11 +232,12 @@ class Parser:
 		if res.error: 
 			return res
 
-		if not self.current_tok.matches(TOKEN_KEYWORD, '{'):
-			return res.failrule(IllegalSyntaxError(
-				self.current_tok.pos_start, self.current_tok.pos_end,
-				"Expected '{'"
-			))
+		if not self.current_tok.matches(TOKEN_KEYWORD, '{'): 
+			if not self.current_tok.matches(TOKEN_KEYWORD, 'then'):
+				return res.failrule(IllegalSyntaxError(
+					self.current_tok.pos_start, self.current_tok.pos_end,
+					"Expected '{' or 'then'"
+				))
 
 		res.register_advancement()
 		self.advance()
@@ -248,10 +252,11 @@ class Parser:
 			#print(f"a {self.current_tok}")
 
 			if not self.current_tok.matches(TOKEN_KEYWORD, '}'):
-				return res.failrule(IllegalSyntaxError(
-					self.current_tok.pos_start, self.current_tok.pos_end,
-					"Expected '}'"
-				))
+				if not self.current_tok.matches(TOKEN_KEYWORD, 'end'):
+					return res.failrule(IllegalSyntaxError(
+						self.current_tok.pos_start, self.current_tok.pos_end,
+						"Expected '}' or 'end'"
+					))
 
 			#print("df")
 
@@ -332,11 +337,12 @@ class Parser:
 		self.advance()
 
 
-		if not self.current_tok.matches(TOKEN_KEYWORD, '{'):
-			return res.failrule(IllegalSyntaxError(
-				self.current_tok.pos_start, self.current_tok.pos_end,
-				"Expected '{'"
-			))
+		if not self.current_tok.matches(TOKEN_KEYWORD, '{'): 
+			if not self.current_tok.matches(TOKEN_KEYWORD, 'then'):
+				return res.failrule(IllegalSyntaxError(
+					self.current_tok.pos_start, self.current_tok.pos_end,
+					"Expected '{' or 'then'"
+				))
 
 		res.register_advancement()
 		self.advance()
@@ -350,11 +356,12 @@ class Parser:
 
 			#print(f"a {self.current_tok}")
 
-			if not self.current_tok.matches(TOKEN_KEYWORD, '}'):
-				return res.failrule(IllegalSyntaxError(
-					self.current_tok.pos_start, self.current_tok.pos_end,
-					"Expected '}'"
-				))
+			if not self.current_tok.matches(TOKEN_KEYWORD, '}'): 
+				if not self.current_tok.matches(TOKEN_KEYWORD, 'end'):
+					return res.failrule(IllegalSyntaxError(
+						self.current_tok.pos_start, self.current_tok.pos_end,
+						"Expected '}' or 'end'"
+					))
 
 			#print("df")
 
@@ -404,6 +411,22 @@ class Parser:
 						self.current_tok.pos_start, self.current_tok.pos_end,
 							"Expected '}'"
 					))
+			elif self.current_tok.matches(TOKEN_KEYWORD, "then"):
+				res.register_advancement()
+				self.advance()
+
+				statements = res.register(self.statements())
+				if res.error: return res
+				else_case = (statements, True)
+
+				if self.current_tok.matches(TOKEN_KEYWORD, 'end'):
+					res.register_advancement()
+					self.advance()
+				else:
+					return res.failrule(IllegalSyntaxError(
+						self.current_tok.pos_start, self.current_tok.pos_end,
+							"Expected 'end'"
+					))
 			else:
 				expr = res.register(self.statement())
 				if res.error: return res
@@ -443,10 +466,11 @@ class Parser:
 		if res.error: return res
 
 		if not self.current_tok.matches(TOKEN_KEYWORD, '{'):
-			return res.failrule(IllegalSyntaxError(
-				self.current_tok.pos_start, self.current_tok.pos_end,
-				"An extra identIfier/token is present or the '{' token is missing"
-			))
+			if not self.current_tok.matches(TOKEN_KEYWORD, 'then'):
+				return res.failrule(IllegalSyntaxError(
+					self.current_tok.pos_start, self.current_tok.pos_end,
+					"An extra identIfier/token is present or the '{' or 'then' token is missing"
+				))
 
 		res.register_advancement()
 		self.advance()
@@ -459,14 +483,22 @@ class Parser:
 			if res.error: return res
 			cases.append((condition, statements, True))
 
-			if self.current_tok.matches(TOKEN_KEYWORD, '}'):
+			if self.current_tok.matches(TOKEN_KEYWORD, '}'): 
 				res.register_advancement()
 				self.advance()
-			else:
-				all_cases = res.register(self.if_expr_b_or_c())
-				if res.error: return res
-				new_cases, else_case = all_cases
-				cases.extend(new_cases)
+				if self.current_tok.matches(TOKEN_KEYWORD, 'elif') or self.current_tok.matches(TOKEN_KEYWORD, 'else') :
+					all_cases = res.register(self.if_expr_b_or_c())
+					if res.error: return res
+					new_cases, else_case = all_cases
+					cases.extend(new_cases)
+			elif self.current_tok.matches(TOKEN_KEYWORD, 'end'):
+				res.register_advancement()
+				self.advance()
+				if self.current_tok.matches(TOKEN_KEYWORD, 'elif') or self.current_tok.matches(TOKEN_KEYWORD, 'else') :
+					all_cases = res.register(self.if_expr_b_or_c())
+					if res.error: return res
+					new_cases, else_case = all_cases
+					cases.extend(new_cases)
 		else:
 			expr = res.register(self.statement())
 			if res.error: return res
@@ -537,8 +569,19 @@ class Parser:
 			return res.success(list_expr)
 
 		elif tok.type == TOKEN_IDENTIFIER:
+			var_name = self.current_tok  
 			res.register_advancement()
 			self.advance()
+
+			if self.current_tok.type == TOKEN_EQ:
+				res.register_advancement()
+				self.advance()
+
+				expr = res.register(self.expr())
+				if res.error: return res
+
+				return res.success(VarAssignNode(var_name, expr, False, self.const_list))
+
 			return res.success(VarAccessNode(tok))
 
 		elif tok.type == TOKEN_LPAREN:
@@ -593,7 +636,7 @@ class Parser:
 
 		if self.current_tok.type != TOKEN_LSQUARE:
 			#if not self.current_tok.matches(TOKEN_KEYWORD, 'func'):
-			return res.failure(InvalidSyntaxError(
+			return res.failrule(IllegalSyntaxError(
 				self.current_tok.pos_start, self.current_tok.pos_end,
 				f"Expected '['"
 			))			
@@ -607,7 +650,7 @@ class Parser:
 		else:
 			element_nodes.append(res.register(self.expr()))
 			if res.error:
-					return res.failure(IllegalSyntaxError(
+					return res.failrule(IllegalSyntaxError(
 						self.current_tok.pos_start, self.current_tok.pos_end,
 						"Expected '], 'var', 'if', 'for', 'while', 'func', int, float, identifier, '+', '-', '(', '[' or 'not'"
 					))
@@ -674,7 +717,7 @@ class Parser:
 		res = ParseResult()
 
 		if not self.current_tok.matches(TOKEN_KEYWORD, 'func'):
-			return res.failure(InvalidSyntaxError(
+			return res.failrule(IllegalSyntaxError(
 				self.current_tok.pos_start, self.current_tok.pos_end,
 				f"Expected 'func'"
 			))
@@ -687,14 +730,14 @@ class Parser:
 			res.register_advancement()
 			self.advance()
 			if self.current_tok.type != TOKEN_LPAREN:
-				return res.failure(InvalidSyntaxError(
+				return res.failrule(IllegalSyntaxError(
 					self.current_tok.pos_start, self.current_tok.pos_end,
 					f"Expected '('"
 				))
 		else:
 			var_name_tok = None
 			if self.current_tok.type != TOKEN_LPAREN:
-				return res.failure(InvalidSyntaxError(
+				return res.failrule(IllegalSyntaxError(
 					self.current_tok.pos_start, self.current_tok.pos_end,
 					f"Expected identifier or '('"
 				))
@@ -746,10 +789,11 @@ class Parser:
 				True
 			))
 		if not self.current_tok.matches(TOKEN_KEYWORD, '{'):
-			return res.failrule(IllegalSyntaxError(
-				self.current_tok.pos_start, self.current_tok.pos_end,
-				"Expected '->' or {"
-			))
+			if not self.current_tok.matches(TOKEN_KEYWORD, 'then'):
+				return res.failrule(IllegalSyntaxError(
+					self.current_tok.pos_start, self.current_tok.pos_end,
+					"Expected '->' or '{' or 'then'"
+				))
 
 		res.register_advancement()
 		self.advance()
@@ -758,10 +802,11 @@ class Parser:
 		if res.error: return res
 
 		if not self.current_tok.matches(TOKEN_KEYWORD, '}'):
-			return res.failrule(IllegalSyntaxError(
-				self.current_tok.pos_start, self.current_tok.pos_end,
-				"Expected '}'"
-			))
+			if not self.current_tok.matches(TOKEN_KEYWORD, 'end'):
+				return res.failrule(IllegalSyntaxError(
+					self.current_tok.pos_start, self.current_tok.pos_end,
+					"Expected '}' or 'end'"
+				))
 
 		res.register_advancement()
 		self.advance()
@@ -827,9 +872,30 @@ class Parser:
 			self.advance()
 			expr = res.register(self.expr())
 			if res.error: return res
-			return res.success(VarAssignNode(var_name, expr))
+			return res.success(VarAssignNode(var_name, expr, False, self.const_list))
 
-		node =  res.register(self.bin_op(self.comp_expr, ((TOKEN_KEYWORD, 'and'), (TOKEN_KEYWORD, 'or'), (TOKEN_KEYWORD, 'in'), (TOKEN_KEYWORD, '!in'))))
+		elif self.current_tok.matches(TOKEN_KEYWORD, 'const'):
+			res.register_advancement()
+			self.advance()
+			if self.current_tok.type != TOKEN_IDENTIFIER:
+				return res.failrule(IllegalSyntaxError(self.current_tok.pos_start, self.current_tok.pos_end, "Expected identifier"))
+
+			var_name = self.current_tok   
+			res.register_advancement()
+			self.advance()
+			#res.register(self.advance())
+			#print(f'{self.current_tok}:{TOKEN_EQ}')
+			if self.current_tok.type != TOKEN_EQ:
+				return res.failrule(IllegalSyntaxError(self.current_tok.pos_start, self.current_tok.pos_end, "Expected '='"))
+
+			res.register_advancement()
+			self.advance()
+			expr = res.register(self.expr())
+			if res.error: return res
+			self.const_list.append({"VAR":var_name, "USE":0})
+			return res.success(VarAssignNode(var_name, expr, True, self.const_list))
+
+		node =  res.register(self.bin_op(self.comp_expr, ((TOKEN_KEYWORD, 'and'), (TOKEN_KEYWORD, '&&'), (TOKEN_KEYWORD, 'or'), (TOKEN_KEYWORD, '||'), (TOKEN_KEYWORD, 'in'), (TOKEN_KEYWORD, '!in'))))
 
 		if res.error: 
 			return res.failrule(IllegalSyntaxError(self.current_tok.pos_start, self.current_tok.pos_end, "Expected 'var', int, float, identifier, '+', '-' or '('"))

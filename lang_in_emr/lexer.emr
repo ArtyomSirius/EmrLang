@@ -1,0 +1,12 @@
+func Lexer(data) {
+	index = 0
+
+	while (len(data) > index) {
+		current_char = data / index
+
+
+		
+
+		index = index + 1
+	}
+}

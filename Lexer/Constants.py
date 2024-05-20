@@ -1,7 +1,7 @@
 import string
 
 DIGITS           = '1234567890'
-LETTERS          = string.ascii_letters + "{" + "}"
+LETTERS          = string.ascii_letters + "{" + "}" + "&" + "|"
 LETTERS_DIGITS   = LETTERS + DIGITS
 INTERPRETER_IMPORT = 0
 
@@ -40,11 +40,15 @@ TOKEN_ARROW      = 'ARROW'
 
 KEYWORDS = [
 	'var',
+	'const',
 	'and',
+	'&&',
 	'or',
+	'||',
 	'not',
 	'if',
 	'{',
+	'then',
 	'elif',
 	'else',
 	'for',
@@ -58,6 +62,7 @@ KEYWORDS = [
 	'try',
 	'except',
 	'}',
+	'end',
 	'init',
 	'connect',
 	'pass',

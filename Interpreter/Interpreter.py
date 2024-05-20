@@ -11,6 +11,7 @@ class Interpreter:
 	"""docstring for Interpreter"""
 	def __init__(self):
 		self.get_revers()
+		self.new_cost_list = [{"VAR": "secrfef", "USE": 0}]
 
 	def get_revers(self):
 		res = RTResult()
@@ -107,14 +108,14 @@ class Interpreter:
 			fn1 = str(node.connect_name.value)
 			fn = fn1
 
-			allowed_extensions = ['.emr']
+			allowed_extensions = ['.emr', '.e']
 			try:
 				with open(str(node.connect_name.value), 'r') as f:
 					if BuiltInFunction.check_file_extension(self, str(node.connect_name.value), str(allowed_extensions)):
 			 			script = f.read()
 					else:
 						return RTResult().failrule(RTError(
-							node.pos_start, node.pos_end, f"Failed to load script \"{fn}\"\n" + "NOT .emr", context))
+							node.pos_start, node.pos_end, f"Failed to load script \"{fn}\"\n" + "NOT .emr or .e", context))
 			except Exception as e:
 				#if not  isinstance(list_, List):
 				return RTResult().failrule(RTError(
@@ -158,12 +159,6 @@ class Interpreter:
 			List(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
 		)
 
-	def visit_str(self, node, context):
-		res = RTResult()
-		
-		if node == 'pass':
-			return res.success(Number.null)
-
 	def visit_VarAccessNode(self, node, context):
 		res = RTResult()
 		var_name = node.var_name_tok.value
@@ -182,10 +177,51 @@ class Interpreter:
 		res = RTResult()
 		var_name = node.var_name_tok.value
 		value = res.register(self.visit(node.value_node, context))
+		const_list = node.cl
 		if res.should_return(): return res
 
-		context.symbol_table.set(var_name, value)
-		return res.success(value)
+		if node.const:
+			index_cl = 0
+			for cl in const_list:
+				var_name_cl = cl['VAR'].value
+				use_var_cl  = cl['USE']
+				if var_name == var_name_cl:
+					if use_var_cl == 0:
+						#print(f"{use_var_cl}:{var_name_cl}")
+						const_list[index_cl] = {"VAR": cl["VAR"], "USE": 1}
+						index_cl += 1
+						context.symbol_table.set(var_name, value)
+						return res.success(value)
+					elif use_var_cl == 1:
+						return res.failrule(RTError(
+							node.pos_start, node.pos_end,
+							f"'{var_name}' this constant, changing the content is not possible",
+							context
+					))
+				else:
+					index_cl += 1
+
+		if not const_list:
+			context.symbol_table.set(var_name, value)
+			return res.success(value)
+		
+		for cl in const_list:
+			var_name_cl = cl['VAR'].value
+			use_var_cl  = cl['USE']
+			if var_name == var_name_cl:
+				if use_var_cl == 0:
+					context.symbol_table.set(var_name, value)
+					return res.success(value)
+				elif use_var_cl == 1:
+						return res.failrule(RTError(
+							node.pos_start, node.pos_end,
+							f"'{var_name}' this constant, changing the content is not possible",
+							context
+					))
+		else:
+			context.symbol_table.set(var_name, value)
+			return res.success(value)
+		
 
 	def visit_BinOpNode(self, node, context):
 		res = RTResult()
@@ -223,7 +259,11 @@ class Interpreter:
 
 		elif node.op_tok.matches(TOKEN_KEYWORD, 'and'):
 			result, error = left.anded_by(right)
+		elif node.op_tok.matches(TOKEN_KEYWORD, '&&'):
+			result, error = left.anded_by(right)
 		elif node.op_tok.matches(TOKEN_KEYWORD, 'or'):
+		 	result, error = left.ored_by(right)
+		elif node.op_tok.matches(TOKEN_KEYWORD, '||'):
 		 	result, error = left.ored_by(right)
 		elif node.op_tok.matches(TOKEN_KEYWORD, '!in'):
 			result, error = left.not_in_by(right)

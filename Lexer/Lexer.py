@@ -39,10 +39,6 @@ class Lexer():
 				token, error = self.make_string()
 				if error: return [], error
 				tokens.append(token)
-			elif self.current_char == "'":
-				token, error = self.make_string()
-				if error: return [], error
-				tokens.append(token)
 			elif self.current_char == '+':
 				tokens.append(Token(TOKEN_PLUS, pos_start=self.pos))
 				self.advance()

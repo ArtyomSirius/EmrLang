@@ -1,4 +1,5 @@
 from Parser.strings_with_arrows import *
+import datetime
 
 class Context:
 	def __init__(self, display_name, parent=None, parent_entry_pos=None):
@@ -47,30 +48,30 @@ class Error:
 	
 	def as_string(self):
 		result  = f'{self.error_name}: {self.details}\n'
-		result += f'File {self.pos_start.fn}, line {self.pos_start.ln + 1}'
+		result += f'EMR[File <{self.pos_start.fn}>, line <{self.pos_start.ln + 1}>]'
 		result += '\n\n' + string_with_arrows(self.pos_start.ftxt, self.pos_start, self.pos_end)
 		return result
 
 class IllegalCharError(Error):
 	def __init__(self, pos_start, pos_end, details):
-		super().__init__(pos_start, pos_end, 'Illegal Character', details)
+		super().__init__(pos_start, pos_end, '[EMR>Illegal Character]', details)
 
 class ExpectedCharError(Error):
 	def __init__(self, pos_start, pos_end, details):
-		super().__init__(pos_start, pos_end, 'Expected Character', details)
+		super().__init__(pos_start, pos_end, '[EMR>Expected Character]', details)
 
 class IllegalSyntaxError(Error):
 	def __init__(self, pos_start, pos_end, details):
-		super().__init__(pos_start, pos_end, 'Invalid Syntax', details)
+		super().__init__(pos_start, pos_end, '[EMR>Invalid Syntax]', details)
 
 class ExpectedCharError(Error):
 	def __init__(self, pos_start, pos_end, details):
-		super().__init__(pos_start, pos_end, 'Expected Character', details)
+		super().__init__(pos_start, pos_end, '[EMR>Expected Character]', details)
 
 
 class RTError(Error):
 	def __init__(self, pos_start, pos_end, details, context):
-		super().__init__(pos_start, pos_end, 'Runtime Error', details)
+		super().__init__(pos_start, pos_end, f'[EMR>Runtime Error<time:{datetime.datetime.now()}>]', details)
 		self.context = context
 
 	def as_string(self):
@@ -89,4 +90,4 @@ class RTError(Error):
 			pos = ctxt.parent_entry_pos
 			ctxt = ctxt.parent
 
-		return 'Traceback (most recent call last): \n' + result
+		return 'EMR<Traceback (most recent call last)>: \n' + result
